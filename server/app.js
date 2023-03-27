@@ -1,13 +1,14 @@
 const express = require('express');
-const { createHandler } = require('graphql-http/lib/use/express');
+const { graphqlHTTP } = require('express-graphql');
 const schema = require('./schema/schema');
 
 const app = express();
 
 app.use(
   '/graphql',
-  createHandler({
+  graphqlHTTP({
     schema,
+    graphiql: true,
   })
 );
 
