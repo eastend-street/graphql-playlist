@@ -7,6 +7,7 @@ const {
   GraphQLSchema,
   GraphQLID,
   GraphQLInt,
+  GraphQLList,
 } = graphql;
 
 // dummy data
@@ -14,6 +15,9 @@ const books = [
   { id: '1', name: 'Name of the wind', genre: 'Fantasy', authorId: '1' },
   { id: '2', name: 'The final empire', genre: 'Fantasy', authorId: '2' },
   { id: '3', name: 'The long earth', genre: 'Sci-Fi', authorId: '3' },
+  { id: '4', name: 'The hero of ages', genre: 'Fantasy', authorId: '2' },
+  { id: '5', name: 'The color of magic', genre: 'Fantasy', authorId: '3' },
+  { id: '6', name: 'The light fantastic', genre: 'Fantasy', authorId: '3' },
 ];
 
 const authors = [
@@ -24,6 +28,9 @@ const authors = [
 
 const BookType = new GraphQLObjectType({
   name: 'Book',
+  // Use arrow function to avoid a reference error for 'AuthorType'
+  // Because AuthorType is not defined when defining the BookType.
+  // To avoid the reference error, make it an arrow function to execute later
   fields: () => ({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
@@ -32,7 +39,6 @@ const BookType = new GraphQLObjectType({
       type: AuthorType,
       // parent will be the book data
       resolve(parent, args) {
-        console.log({ parent });
         return _.find(authors, { id: parent.authorId });
       },
     },
@@ -45,6 +51,12 @@ const AuthorType = new GraphQLObjectType({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
     age: { type: GraphQLInt },
+    books: {
+      type: new GraphQLList(BookType),
+      resolve(parent, args) {
+        return _.filter(books, { authorId: parent.id });
+      },
+    },
   }),
 });
 
