@@ -1,8 +1,26 @@
+import { gql, useQuery } from '@apollo/client';
+
+const getBooksQuery = gql`
+  {
+    books {
+      name
+      id
+    }
+  }
+`;
+
 function BookList() {
+  const { loading, error, data } = useQuery(getBooksQuery);
+
+  if (loading) return <p>Loading books...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
   return (
     <div id="main">
       <ul id="book-list">
-        <li>Book name</li>
+        {data.books.map((book) => (
+          <li key={book.id}>{book.name}</li>
+        ))}
       </ul>
     </div>
   );
