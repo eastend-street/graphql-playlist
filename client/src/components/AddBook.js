@@ -1,21 +1,28 @@
 import { useState } from 'react';
-import { useQuery } from '@apollo/client';
-import { getAuthorsQuery } from '../queries/queries';
+import { useQuery, useMutation } from '@apollo/client';
+import { getAuthorsQuery, addBookMutation } from '../queries/queries';
 
 function AddBook() {
   const [name, setName] = useState('');
   const [genre, setGenre] = useState('');
   const [authorId, setAuthorId] = useState('');
   const { loading, error, data } = useQuery(getAuthorsQuery);
+  const [
+    addBook,
+    { data: addBookData, loading: addBookLoading, error: addBookError },
+  ] = useMutation(addBookMutation);
 
-  if (error) return <p>Error: {error.message}</p>;
+  if (error || addBookError)
+    return <p>Error: {error.message || addBookError.message}</p>;
 
   const submitForm = (e) => {
     e.preventDefault();
-    console.log({
-      name,
-      genre,
-      authorId,
+    addBook({
+      variables: {
+        name,
+        genre,
+        authorId,
+      },
     });
   };
 
@@ -46,7 +53,7 @@ function AddBook() {
           id="author"
           onChange={(event) => setAuthorId(event.currentTarget.value)}
         >
-          {loading ? (
+          {loading || addBookLoading ? (
             <option>Loading Authors...</option>
           ) : (
             <>
@@ -59,7 +66,9 @@ function AddBook() {
             </>
           )}
         </select>
-        <button type="submit">Submit</button>
+        <button type="submit">
+          {addBookLoading ? 'Submitting...' : 'Submit'}
+        </button>
       </div>
     </form>
   );
